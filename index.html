@@ -71,6 +71,26 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(0.7); }
     }
+
+    .btn {
+      display: inline-block;
+      margin-top: 2.5rem;
+      padding: 0.85rem 2rem;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 9999px;
+      letter-spacing: 0.01em;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 4px 24px rgba(99,102,241,0.35);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(99,102,241,0.5);
+    }
   </style>
 </head>
 <body>
@@ -80,6 +100,7 @@
     <p class="tagline">
       Building things that matter<span class="dot"></span>one commit at a time
     </p>
+    <a class="btn" href="loves.html">Click here to see how much...</a>
   </div>
 </body>
 </html>

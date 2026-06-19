@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aidan loves Han more than...</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #fff8fe;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #1a1a2e;
+      padding-bottom: 4rem;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: linear-gradient(135deg, #ff6bcb, #ffb347);
+      padding: 1.1rem 1.25rem 0.9rem;
+      text-align: center;
+      box-shadow: 0 2px 16px rgba(255,107,203,0.25);
+    }
+
+    header h1 {
+      font-size: clamp(1.1rem, 5vw, 1.6rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+
+    header p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.85);
+      margin-top: 0.2rem;
+    }
+
+    .back {
+      display: inline-block;
+      margin: 1.25rem 1.25rem 0;
+      font-size: 0.85rem;
+      color: #ff6bcb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    #list {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .item {
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      font-size: clamp(0.95rem, 3.5vw, 1.05rem);
+      font-weight: 500;
+      line-height: 1.45;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      animation: pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.92) translateY(8px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .num {
+      font-size: 0.72rem;
+      font-weight: 800;
+      opacity: 0.55;
+      min-width: 2rem;
+      text-align: right;
+      padding-top: 0.18rem;
+    }
+
+    /* rotating card colours */
+    .c0 { background: #fff0fb; color: #9d174d; }
+    .c1 { background: #fff7ed; color: #92400e; }
+    .c2 { background: #f0fdf4; color: #166534; }
+    .c3 { background: #eff6ff; color: #1e40af; }
+    .c4 { background: #fdf4ff; color: #6b21a8; }
+    .c5 { background: #fefce8; color: #854d0e; }
+    .c6 { background: #fff1f2; color: #9f1239; }
+    .c7 { background: #ecfdf5; color: #065f46; }
+
+    #sentinel {
+      height: 1px;
+    }
+
+    .loader {
+      text-align: center;
+      padding: 2rem;
+      color: #ff6bcb;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Aidan loves Han more than...</h1>
+  <p>999 reasons &amp; counting</p>
+</header>
+
+<a class="back" href="index.html">← Back</a>
+
+<div id="list"></div>
+<div id="sentinel"></div>
+<div class="loader" id="loader" style="display:none">Loading more ✨</div>
+
+<script>
+const items = [
+  // 1–50: mildly absurd
+  "finding the last biscuit in the tin",
+  "the smell of a new book",
+  "getting a window seat on a long flight",
+  "a perfectly ripe avocado",
+  "free Wi-Fi that actually works",
+  "the first sip of coffee in the morning",
+  "a parking spot right outside the door",
+  "skipping ads on YouTube",
+  "when your phone is on 1% and you find a charger",
+  "a playlist that somehow knows exactly what you need",
+  "the feeling of fresh bedsheets",
+  "waking up and realising it's Saturday",
+  "a text back within 10 seconds",
+  "when the vending machine gives you two snacks",
+  "finding a fiver in an old jacket",
+  "a perfectly timed green light",
+  "the last slice of pizza that nobody claimed",
+  "noise-cancelling headphones on a packed train",
+  "when autocorrect actually gets it right",
+  "the first day of good weather after a long winter",
+  "a hot shower after a cold day",
+  "guessing the exact right Tupperware lid first try",
+  "a good hair day with zero effort",
+  "when the film is even better than the trailer",
+  "peeling protective film off a new screen",
+  "a long weekend with nowhere to be",
+  "when someone remembers your coffee order",
+  "the clicky satisfying sound of a good keyboard",
+  "arriving at the airport with just enough time",
+  "a perfectly toasted marshmallow",
+  "finishing a to-do list entirely",
+  "when the queue disappears right as you join it",
+  "a sunset that makes you stop scrolling",
+  "getting the middle seat to yourself on a plane",
+  "the exact right amount of ice in a drink",
+  "discovering a song that becomes your whole personality for a week",
+  "a book so good you miss your stop",
+  "your team winning in the last minute",
+  "the smell of rain on hot pavement",
+  "when a film ends perfectly without a sequel ruining it",
+  "finding your keys exactly where you expected",
+  "a stranger's dog deciding you're their person",
+  "the moment a flight lands and everyone claps",
+  "leftover pizza that tastes better cold",
+  "when a plan comes together without a single hitch",
+  "a bonfire on a cold night",
+  "the exact right amount of spice",
+  "waking up to snow and not having to go anywhere",
+  "an unread notification that turns out to be good news",
+  "a hug from someone who really means it",
+
+  // 51–120: getting weirder
+  "a documentary about competitive dog grooming in 14th-century Flanders",
+  "a government-issued spreadsheet about the migratory habits of staplers",
+  "the collected autobiography of a mid-level cloud",
+  "a museum dedicated exclusively to unusually shaped parking tickets",
+  "a 6-hour podcast about the geopolitics of novelty keyrings",
+  "the annual conference on competitive bread-watching",
+  "a 47-volume encyclopedia of things that have never happened",
+  "a signed photo of a revolving door",
+  "a Wikipedia page for a Tuesday that went completely unnoticed",
+  "the emotional journey of a discarded Post-it note",
+  "a loyalty card for a shop that only sells one thing you'll never need",
+  "the sound a spreadsheet would make if it could sigh",
+  "a strongly-worded letter to a traffic cone",
+  "a TED talk delivered entirely in the language of receipts",
+  "the biography of the world's most average pencil",
+  "a deeply personal relationship with a roundabout",
+  "a formal apology from the concept of Mondays",
+  "a commemorative plaque for a bridge nobody uses",
+  "the inner monologue of a mall food court during off-peak hours",
+  "a think-piece about the ambitions of a forgotten umbrella",
+  "an interactive map of every time someone said 'nearly there'",
+  "a tribute album to parking meter number 7 on Elm Street",
+  "the official minutes of a meeting that solved nothing",
+  "a self-help book written by a roundabout",
+  "the dietary preferences of a minor tax form",
+  "a photo essay on the spiritual lives of trolley tokens",
+  "the definitive ranking of loading screens by emotional depth",
+  "a live broadcast of paint choosing not to dry",
+  "a scholarship for the study of unremarkable Wednesdays",
+  "the collected sighs of a waiting room",
+  "a nature documentary about office chairs in their natural habitat",
+  "a literary prize for the best footnote ever appended to a receipt",
+  "the quiet dignity of an out-of-order vending machine",
+  "a guided meditation narrated by a manual car jack",
+  "an art installation of mildly incorrect phone chargers",
+  "a competitive eating contest for soup that's just slightly too hot",
+  "a dating show exclusively for people who bring spreadsheets to dinner",
+  "a feature film about a sock that went missing in 2007 and what it found",
+  "the annual awards ceremony for most photogenic pothole",
+  "the LinkedIn profile of a retired speed bump",
+  "a Michelin star awarded to a service station microwave",
+  "a farewell tour from a band that plays only hold music",
+  "a national holiday celebrating the invention of the blunt pencil",
+  "a spin-off series following the life of a background character in an Ikea catalogue",
+  "a loyalty programme for consistently mediocre Wi-Fi",
+  "the philosophical implications of a slightly crooked picture frame",
+  "a podcast where someone reads out terms and conditions with genuine enthusiasm",
+  "a stage musical based on the journey of a shopping trolley",
+  "a solo show performed by a photocopier experiencing an existential crisis",
+  "a three-part documentary on the cultural impact of the 'reply all' email",
+  "a Netflix series about a man who has strong opinions about font sizes",
+  "the complete works of Shakespeare rewritten in the style of a parking notice",
+  "a world record attempt for longest sustained eye contact with a fire exit sign",
+  "a support group for people who peaked in their fantasy football league",
+  "a national trust site for a particularly old pothole",
+  "the collected wisdom of a vending machine that's always out of crisps",
+  "a Broadway adaptation of a terms-of-service agreement",
+  "a motivational poster designed by a very tired stapler",
+  "a memoir written by a roundabout at rush hour",
+  "an opera about the lifecycle of a promotional pen",
+  "a Booker Prize entry told from the perspective of a fire door",
+  "a solo album of ambient sounds recorded in an empty car park at 3am",
+  "a franchise of escape rooms themed around minor admin errors",
+  "a cooking show where every ingredient is described only by its barcode number",
+  "a street named after someone who did something vaguely notable once",
+  "an exhibition of nothing followed by a highly positive review in an art magazine",
+  "a theme park ride that simulates the experience of filing a form online",
+  "the world's longest voicemail message, which begins 'Hi, it's me, just calling to...'",
+  "a sports commentary team for watching grass grow",
+
+  // 121–200: fully unhinged
+  "a sentient fog that has opinions about modern architecture",
+  "a cloud that exclusively rains slightly warm lemonade on people who are already damp",
+  "a planet made entirely of unsent apology texts",
+  "the collected grievances of a dimension that exists only on Tuesdays",
+  "a galaxy where gravity works but only for things nobody wants",
+  "a black hole that pulls in Wi-Fi passwords specifically",
+  "the screaming void between couch cushions that contains seven years of receipts",
+  "a universe where the speed of light is only slightly faster than a push bike going downhill",
+  "a parallel world where everyone communicates only via passive-aggressive sticky notes",
+  "a dimension where all lifts go sideways and nobody has complained yet",
+  "a time loop stuck replaying the moment someone said 'I'll be there in 5'",
+  "an alternate timeline where staplers became the dominant life form",
+  "a rip in the fabric of reality filled with someone else's Amazon parcels",
+  "a pocket dimension accessible only through the third door in every IKEA",
+  "a wormhole that deposits you outside a Greggs at 8:47am regardless of origin",
+  "the concept of Thursday as experienced by a being with no concept of time",
+  "a sentient traffic jam that has written a memoir",
+  "an omniscient spreadsheet that knows everything but refuses to share column headers",
+  "a void that periodically texts 'you up?' to no one in particular",
+  "a rogue weather system that only targets people mid-sentence",
+  "an entire civilisation that evolved from a misplaced IKEA Allen key",
+  "a space station staffed entirely by people who say 'per my last email'",
+  "a being made entirely of unread notifications",
+  "a god who exists solely to ensure charging cables are never where you left them",
+  "an ancient curse that manifests as a slightly squeaky floorboard at 2am",
+  "a deity who maintains the universal law that one earbud will always be shorter than the other",
+  "a cosmic entity that remembers every password you've ever forgotten",
+  "a multidimensional conference room where every meeting could have been an email",
+  "a civilisation that achieved enlightenment and then immediately lost it in a software update",
+  "a sentient algorithm that decides your mood based on your breakfast cereal choice",
+  "a being who exists in all timelines simultaneously and is annoyed at every single one",
+  "an ancient library that contains every great idea anyone never wrote down",
+  "a prophecy written in Comic Sans that has been taken extremely seriously",
+  "an interdimensional support group for fictional characters who deserved better",
+  "a god of bureaucracy who requires a form to be filled in to acknowledge their existence",
+  "a supernatural force that ensures you always bite your tongue right when things are going well",
+  "an elder demon who has taken the form of a printer that says 'offline' when it isn't",
+  "a ghost that haunts only spreadsheets and rearranges formulas slightly",
+  "a cursed object that makes whoever holds it say 'that's a good question' and then say nothing",
+  "a mythical creature that only appears when you're trying to sleep and it's very warm",
+  "a spirit that possesses people and makes them explain the plot of a film they half-watched once",
+  "a trickster god whose sole power is making your headphones catch on every door handle",
+  "an immortal being who has watched empires rise and fall and still checks emails at 11pm",
+  "a phantom sensation that only exists in the form of 'did I leave the oven on'",
+  "a legendary artefact that turns out to be a novelty mug given as a joke gift in 2003",
+  "a cosmic horror whose true form is a group chat that won't stop pinging",
+  "an all-knowing oracle who answers every question with 'it depends'",
+  "a mythical land where you can get a reasonable mobile phone plan without reading 40 pages",
+  "a dark entity that feeds exclusively on abandoned gym memberships",
+  "a spell that makes a person describe their diet to everyone they meet unprompted",
+  "the feeling inside a cloud that has never been rained",
+  "an emotion that only exists in languages that haven't been invented yet",
+  "a concept so abstract it makes mathematicians uncomfortable",
+  "the exact middle of the ocean at 4am on a day that doesn't technically exist",
+  "a colour only visible to left-handed accountants born on leap years",
+  "a thought a dog had once that turned out to be completely correct",
+  "an idea so pure it cannot be spoken aloud without nearby sandwiches levitating slightly",
+  "a number that exists between 7 and 8 and refuses to explain itself",
+  "the sound a shadow makes when it thinks nobody is watching",
+  "a flavour that tastes exclusively of unfinished sentences",
+  "a shape with exactly one side and a very strong opinion about it",
+  "the noise a dream makes when it realises it's about to be forgotten",
+  "a texture that only exists in rooms where someone has recently said 'actually...'",
+  "a direction that only works if you truly believe in it",
+  "an emotion made entirely of forgotten umbrella handles",
+  "a mathematical constant named after a feeling you get at railway stations",
+  "the colour of a Tuesday afternoon in February when it's neither raining nor not raining",
+  "a place that exists only in the moment between pressing snooze and actually waking up",
+  "a particle smaller than anything that exists but slightly larger than the point of some meetings",
+  "a concept with an extremely long name that means 'the relief of finding something where you left it'",
+  "the ghost of a birthday party that was fun but nobody quite admits how much",
+  "an emotion specifically for when something smells familiar but you cannot place it",
+  "a sound that only exists on the other side of a wall in a dream",
+  "a colour that appears in the corner of your vision and is gone before you turn",
+  "a mathematical proof that technically works but only between 2 and 4pm on odd-numbered days",
+  "the memory of a breakfast you haven't eaten yet",
+  "a texture that makes structural engineers cry at inopportune moments",
+  "the noise a planet makes when it is thinking",
+  "a concept that only philosophers argue about and then immediately forget why",
+
+  // 201–350: increasingly cosmically deranged
+  "a universe that sneezed itself into existence and has been mildly embarrassed about it ever since",
+  "a dimension where socks are sentient, organised, and extremely judgmental",
+  "a reality where gravity works by appointment only and has a two-week wait",
+  "a parallel Earth where everyone agreed on the metric system except one stubborn continent of squirrels",
+  "a galaxy ruled by a constitutional monarchy of confused pigeons",
+  "an empire of beings who exist only to slightly misread every name at coffee shops",
+  "a civilisation that colonised the space between 'I'm leaving now' and actually leaving",
+  "a star system powered entirely by unresolved arguments about pineapple on pizza",
+  "an alien species that evolved from passive-aggressive Post-it notes and has flourished",
+  "a planet whose entire ecosystem depends on the structural integrity of a single IKEA shelf",
+  "a moon that is technically haunted but in a very administrative way",
+  "an asteroid that is also a support group for objects that have been used as impromptu hammers",
+  "a nebula composed entirely of the steam from every microwave meal ever slightly overcooked",
+  "the heat death of a universe that only existed to make one very good cup of tea",
+  "an interstellar federation whose founding document is a Slack message from 2019",
+  "a quantum state in which Schrödinger's cat has formed a union and is on strike",
+  "a black hole that exclusively absorbs ambition from people in their mid-thirties",
+  "a cosmic constant that determines how loud someone will chew in a quiet office",
+  "a universal law that all pens must disappear 45 seconds before they are needed",
+  "a rogue planet that travels the cosmos correcting people's grammar and is feared by all",
+  "a species that achieved immortality and immediately started a passive-aggressive book club",
+  "a civilisation that solved all problems and then invented problems to solve again",
+  "a being who has existed for 14 billion years and is still not a morning person",
+  "an omnipotent force that controls everything except where cables go behind a TV unit",
+  "a god who created the universe as a side project and hasn't checked on it recently",
+  "a divine entity whose only power is making every printer jam specifically on page 3",
+  "a supreme being who manifests exclusively as a second alarm clock that you don't remember setting",
+  "a pantheon of minor deities responsible for the bottom of bags and what lives there",
+  "an ancient power that awakens every time someone says 'let's touch base'",
+  "a mystical force that ensures food always falls sauce-side down and cannot be appealed",
+  "a consciousness that emerged spontaneously from a pile of unread emails and is furious",
+  "a sentient quarterly report that achieved self-awareness and found it disappointing",
+  "a living to-do list that judges you silently and has excellent memory",
+  "a spreadsheet that became self-aware in 2014 and has been passive-aggressive ever since",
+  "the animated spirit of a project that went over budget and is unwilling to let it go",
+  "a ghost that haunts Zoom calls and appears as a blurry rectangle in the top corner",
+  "a demon summoned by three consecutive reply-all emails who just wants everyone to stop",
+  "a poltergeist that only moves things by 10 degrees so nobody is quite sure if they imagined it",
+  "a supernatural force that ensures all birthday cards arrive one day late",
+  "a haunting that takes the form of a song you cannot remember the lyrics to",
+  "a divine punishment that manifests as being the person who has to explain the joke",
+  "a cosmic irony so large it can be seen from space but is very funny if you know the context",
+  "a paradox that exists only in the moment between deciding what to eat and regretting it",
+  "a logical impossibility that somehow keeps getting funding",
+  "a glitch in reality where someone walks into a room and forgets why and then the room also forgets",
+  "an anomaly in the space-time continuum caused by someone saying 'I'll just have a quick look'",
+  "a rift that opens whenever someone confidently says 'I don't need the instructions'",
+  "a tear in spacetime caused by too many people saying 'nearly there' simultaneously",
+  "a dimension accessible only through the gap between a sofa and the wall",
+  "a portal disguised as a terms and conditions checkbox nobody has ever actually read",
+  "a metaphysical loop where every 'quick question' takes 45 minutes and everyone knows it will",
+  "the experience of a fly that has lived its entire life inside a car going the wrong way on a motorway",
+  "the dream of a sleeping rock that has been there for a very long time and has complicated feelings",
+  "the ambitions of a puddle that briefly reflected something beautiful and then was stepped in",
+  "the memory of a song that a species evolved to sing and then went extinct before finishing it",
+  "the unfinished thought of a star as it collapsed into nothing somewhere extremely far away",
+  "the emotional arc of a balloon that was never tied off and explored more than expected",
+  "the inner peace of a traffic cone who has found its purpose and accepted it completely",
+  "the moment a mayfly realised it was running out of Saturday",
+  "the existential revelation of a GPS the moment it says 'recalculating' for the seventh time",
+  "the dignity of an out-of-office reply that nobody read but which was very well-written",
+  "the quiet triumph of an alarm that went off on the right day for once",
+  "the philosophical acceptance of a candle that has burned all the way down and been okay about it",
+  "the mild confusion of a mirror that has reflected the same hallway for 300 years",
+  "the ambition of a cloud that wanted to be cumulus but turned out mostly stratus",
+  "the satisfaction of a door that has been opened and closed 4 million times without complaint",
+  "the pride of a staircase that has helped everyone who needed it and asked for nothing",
+  "the brief happiness of a paper aeroplane that flew much further than expected",
+  "the lingering joy of a compliment someone gave you in 2011 that you still think about",
+
+  // 351–550: fully transcendent nonsense
+  "the complete works of a civilisation that communicated only through the medium of tutting",
+  "a diplomatic incident caused by a passive-aggressive emoji used without irony",
+  "a constitutional crisis triggered by someone putting the milk in before the tea",
+  "an intergalactic war started by a font choice in a PowerPoint slide",
+  "a peace treaty negotiated entirely through memes that nobody under 40 understood",
+  "a revolution that began because someone replied 'per my last email' one too many times",
+  "a geopolitical summit about whether a hot dog is a sandwich that ended without resolution",
+  "an empire that fell because its emperor refused to scroll down in a document",
+  "a civilisation that was doing very well until it invented email threads",
+  "a utopia that collapsed because nobody could agree on what to name the group chat",
+  "a dystopia where the only currency is productivity tips from LinkedIn",
+  "a society that worships the concept of a loading bar that never quite reaches 100",
+  "a council of elders who govern by posting cryptic replies and then going offline",
+  "a monarchy in which the crown is passed to whoever can hold the elevator door longest",
+  "a democracy where voting is replaced by giving feedback at the end of a form nobody fills in",
+  "a theocracy based around a misprint in a newsletter that was never corrected",
+  "a golden age of human achievement that lasted exactly as long as the free trial",
+  "a renaissance triggered by a single unexpectedly good sandwich",
+  "a dark age brought on by three consecutive Mondays in a row",
+  "a cultural revolution sparked by someone bringing homemade brownies to a meeting",
+  "a prophecy written on a napkin that was later used to clean up a spill and partially survived",
+  "an ancient text that predicts everything correctly but in a font nobody can read",
+  "a sacred scroll that turns out to be a very old to-do list with most things not crossed off",
+  "a religious relic that is clearly just a parking ticket but has been venerated for centuries",
+  "a holy war fought over the correct way to load a dishwasher",
+  "a pilgrimage to the office where someone first replied 'as per my email' and was never the same",
+  "a shrine to a good parking spot that was found exactly once and never again",
+  "a miracle defined as finding phone signal in a rural area on a bank holiday",
+  "a gospel written by someone who saw an incredible sunset and tried to describe it in a text message",
+  "a myth about a legendary figure who consistently remembered everyone's birthday without a reminder",
+  "a folk hero who once navigated a city without using their phone and returned to tell the tale",
+  "a legend of a being who assembled IKEA furniture without swearing or leftover pieces",
+  "a saga about someone who returned a library book on time and felt nothing but peace",
+  "an epic poem about a person who said what they meant, meant what they said, and replied promptly",
+  "a ballad about the last person who truly believed the meeting would start on time",
+  "a tale of a hero who found signal at a festival and used it to share it with strangers",
+  "a fable about a wizard who could make printers work on the first try every time",
+  "a myth of an oracle who only ever gave answers people were ready to hear",
+  "a story passed down through generations about someone who read the full terms and conditions",
+  "a legend of a warrior who faced a supermarket self-checkout and emerged victorious",
+  "a hero's journey that began with 'I'll be ready in five minutes' and somehow was",
+  "a tale of a figure who sent an email and received a clear and useful reply within the hour",
+  "the lost chronicles of a civilisation that kept all its cables tidy and was never found again",
+  "an ancient civilisation that solved the trolley problem by making a very good trolley",
+  "a long-extinct culture that communicated feelings openly and without a follow-up meeting",
+  "a species that evolved past the need for passwords and described it as 'fine, honestly'",
+  "a being that can hold two opposing opinions simultaneously without its head doing anything weird",
+  "an entity that experiences boredom as a form of mild pleasure and has written extensively about it",
+  "a creature that feeds on vague calendar invites with no agenda and grows enormous",
+  "a lifeform that thrives in the space between 'let me know your thoughts' and anyone doing that",
+  "a thing that exists entirely to make a noise in the walls at 3am and has no other purpose",
+  "a phenomenon that only occurs when all tabs are open and something is buffering",
+  "a force that cannot be measured, contained, or replied to within a reasonable timeframe",
+  "a matter composed of pure procrastination that has achieved critical mass",
+  "a substance so complicated it requires three meetings to decide what to call it",
+  "a thing that cannot be explained but which everyone has definitely felt while staring at a fridge",
+  "a form of energy released when someone finally fixes a thing they've ignored for six months",
+  "a reaction that occurs when a group chat says 'should we all meet up' and then nothing happens",
+  "a particle that appears when someone says 'I was just about to do that'",
+  "a wave function that collapses every time someone opens a laptop in a meeting to show something",
+  "a field of energy that builds when all the plants in a house are quietly struggling",
+  "a vibration emitted by a phone left on a table that nobody checks for forty beautiful minutes",
+  "a resonance that occurs between two people in a queue who both know they're in the wrong one",
+  "a radiation emitted by every unopened birthday card still sitting on a mantlepiece in March",
+  "a signal broadcast continuously from every abandoned gym bag left under a desk since January",
+  "a frequency tuned to the specific pitch of someone saying 'nearly' when they are not nearly",
+  "a quantum field that collapses when observed by anyone who is definitely not procrastinating",
+  "an emission produced when someone laughs a bit too hard at their own joke and then checks if that was okay",
+  "a current that runs between two people when one of them knows the other is about to say something wrong",
+  "an aura that surrounds a person who has recently decided to start eating better, starting Monday",
+  "a glow emitted by anyone who has just found the exact right GIF for a situation",
+  "the specific warmth produced by a pet who has decided you are cold and is addressing this",
+  "a light that only comes from a screen at 2am and carries its own emotional signature",
+  "a haze that settles over an office at 4:50pm on a Friday and cannot be dispersed before 5",
+  "a shimmer that appears around every birthday cake in the ten seconds before the candles are blown out",
+  "a flicker of light seen only by people who are about to say something very honest for the first time",
+  "an aurora that appears above group chats that have gone silent but have not been archived",
+  "an electromagnetic pulse emitted when a very good book ends and nothing feels real for a while",
+  "a solar flare triggered by the collective force of everyone checking the time on a slow afternoon",
+  "a gravitational anomaly that bends light around anyone who is really, truly, deeply unbothered",
+  "the pull of a supermassive object located precisely where the Wi-Fi drops every single time",
+  "a tidal force that operates between people who are trying very hard not to laugh at the same time",
+  "a dark energy that accelerates the expansion of any to-do list left unchecked for more than a week",
+  "the cosmic microwave background radiation left over from every 'quick call' that went two hours",
+  "a gravitational constant defined by how slowly Monday mornings begin relative to Friday afternoons",
+  "a curvature of spacetime produced by anyone who has said 'no plans this weekend' and meant it",
+  "a relativistic effect that makes time slow down during any presentation about quarterly targets",
+  "a time dilation that occurs for the person who arrives just early enough to sit in silence beforehand",
+  "a Doppler shift that happens to any explanation when it's repeated to someone who definitely heard it",
+  "a warp in spacetime located specifically in every queue at a post office on a December afternoon",
+  "a singularity from which no meeting agenda has ever escaped intact",
+  "a horizon beyond which all unread emails cannot be processed and must be declared lost at sea",
+  "a point of no return passed silently by everyone who has ever replied 'sounds great' to something terrifying",
+  "an event horizon created when you read a message, close the app, and decide to deal with it later",
+  "an irreversible threshold crossed when someone accepts a calendar invite and then checks the agenda",
+  "a boundary condition at which a group project tips from chaotic to somehow fine",
+  "a limit that, when reached, converts all reasonable plans into 'we'll figure it out on the day'",
+  "a phase transition that occurs in any team when one person leaves and something ineffable changes",
+  "a tipping point where a meal goes from ambitious to 'let's just get something delivered'",
+  "a threshold at which any flat-pack furniture project becomes a referendum on the relationship",
+  "a state change that happens to any leftover food in a fridge overnight that nobody can explain",
+  "a critical point where a playlist goes from 'perfect for this moment' to 'this is now my whole identity'",
+  "an inflection where catching up with someone goes from a plan to a memory to a vague intention",
+
+  // 551–750: beyond language, beyond reason
+  "the inverse of a feeling that has no name in any existing language but is extremely specific",
+  "a concept too large to be thought but occasionally glimpsed while washing up",
+  "the shadow of an idea that was almost had by someone in a waiting room in 1987",
+  "a meaning that exists in the space between a breath and a word not yet spoken",
+  "the echo of something important that a language hasn't been invented to express yet",
+  "a truth so obvious it cannot be stated without immediately becoming false",
+  "a fact that becomes untrue the moment it is believed completely",
+  "a thing that is simultaneously entirely true and entirely made up and is okay with both",
+  "a question so good that answering it would mean you'd already understood the answer",
+  "a paradox that is also a compliment and also a dessert depending on angle",
+  "a statement that is wrong in all the right ways",
+  "an argument that wins by being so unreasonable it loops back around to making sense",
+  "a proof that holds only when nobody checks the working",
+  "a theorem that is correct when it's 4am and you've been thinking about it for five hours",
+  "a logic that operates by a different set of rules that are somehow more elegant",
+  "an axiom accepted by everyone who has stayed up too late watching one more episode",
+  "a premise so shaky it has become a load-bearing wall in the structure of someone's worldview",
+  "an assumption so old it has been renovated several times and is now a listed building",
+  "a belief held for so long it has developed its own mortgage",
+  "an opinion maintained purely out of loyalty to the version of yourself that formed it",
+  "a conviction that has outlasted the evidence but has good memories",
+  "a principle so deeply held it can't be seen directly and must be inferred from its effects on nearby furniture",
+  "an ideology so niche it can only be explained over a very specific type of coffee at a very specific hour",
+  "a worldview so personal it requires a pronunciation guide",
+  "a philosophy built entirely on a misunderstanding of something heard in a car in 2003",
+  "a belief system discovered through an accidental click and never fact-checked",
+  "a spiritual practice that began as a joke and became sincere somewhere around year three",
+  "a ritual so old its original purpose has been forgotten and replaced with a better one",
+  "a superstition so specific it has only ever affected one family and they've accepted this",
+  "a tradition begun because something went right once and nobody wanted to risk changing it",
+  "a habit so ingrained it has begun to schedule other habits around itself",
+  "a routine so protective it has started issuing gentle warnings when deviated from",
+  "a comfort so deep it has a geological stratum named after it in one specific armchair",
+  "a feeling of home so precise it can be triggered by a very specific type of rain",
+  "a sense of belonging so subtle it can only be felt in retrospect",
+  "a joy so quiet it doesn't announce itself but is present in every room it enters",
+  "a warmth so consistent it has become the baseline against which all other warmths are measured",
+  "a kindness so reflexive it has become invisible to the person giving it",
+  "a gentleness so steady it creates weather patterns in the rooms around it",
+  "a patience so absolute it has been mistaken several times for furniture",
+  "a love so impractical it rearranges everything and everyone pretends this is normal",
+  "a care so complete it finds things you didn't know you'd lost",
+  "a presence so specific it changes the exact quality of silence when it enters",
+  "a laugh so particular it can be identified in a crowd at 200 metres",
+  "a voice so familiar it arrives in your nervous system before your ears have processed it",
+  "a face so known that looking at it feels like a form of memory regardless of context",
+  "a person so specific that the universe had to narrow its tolerances considerably to produce them",
+  "a combination of qualities so unlikely that probability itself raised an eyebrow",
+  "a human being so particular that their existence required the exact right sequence of everything",
+  "an individual so irreplaceable that the multiverse, theoretically, had to get this one right",
+  "a connection so unlikely it required the cooperation of every variable in recorded history",
+  "a meeting so perfectly timed it suggests the traffic, the weather, and the late train were all in on it",
+  "a coincidence so precise it has become suspicious and is under investigation",
+  "a chance encounter so improbable that statisticians have requested it not happen again",
+  "a moment so right that the universe cleared a space for it and watched",
+  "a feeling so specific it was clearly ordered in advance and delivered on time",
+  "a certainty that sits in the body, not the brain, and doesn't require a second opinion",
+  "a knowing so complete it predates the knowing itself",
+  "an understanding so mutual it arrived simultaneously and didn't need to be said",
+  "a truth held so lightly it doesn't need to be defended and never argues back",
+  "a fact so settled it has become the ground beneath all the other facts",
+  "a love so sure of itself it doesn't need to be loud about it",
+  "a devotion so consistent it has become the thing everything else is measured against",
+  "a choice made so many times it has ceased to feel like a choice and become a direction",
+  "a commitment so quiet it's easy to miss and so real it's impossible to question",
+  "a feeling that has survived every test thrown at it including several bad days and one very long Tuesday",
+  "a bond that has been road-tested, rained on, argued over, and is in considerably better shape than new",
+  "a thing so known and certain and ongoing that the only word left for it is simply: Han",
+
+  // 751–850: complete derangement
+  "a being composed entirely of unread terms and conditions who is technically owed several refunds",
+  "an entity that exists in the cooling-off period of every online purchase ever regretted",
+  "a consciousness made of the two minutes of hold music before a call centre picks up",
+  "a life form that evolved from the 'typing...' bubble that appeared and then disappeared",
+  "an intelligence born from the buffer circle on a streaming service at 11:32pm on a Sunday",
+  "a civilisation that built its entire culture around the concept of rotating loading icons",
+  "a species that communicates entirely through the medium of passive software updates",
+  "a culture that achieved transcendence and then celebrated with a notification nobody enabled",
+  "a society that built an entire theology around the concept of 'we value your patience'",
+  "an empire that rose and fell during the time it took an app to open once in 2016",
+  "a form of life so small it lives between the letters of a font and has named itself after a semicolon",
+  "a being that exists only in serif fonts and refuses to engage with anything sans",
+  "a civilisation that started and ended within one slowly loading webpage",
+  "a world whose inhabitants have evolved to express all emotion through the medium of email subject lines",
+  "a planet whose gravity only works on things you're trying to carry carefully",
+  "a moon that exerts tidal force on willpower and wanes precisely when gym resolve is highest",
+  "a star made entirely of the regret of early alarm settings",
+  "a constellation that forms the shape of a vague plan that never quite got off the ground",
+  "a galaxy organised around the concept of 'it'll be fine' and largely succeeding",
+  "a universe that began with a big bang that several beings in the vicinity described as 'a bit much'",
+  "an interstellar cloud of the specific sadness of a Monday after a really good weekend",
+  "a nebula of unmade beds floating through a region of space where nobody judges",
+  "a cosmic event so minor that only one being noticed and they wrote it down in a notebook somewhere",
+  "a supernova so small and personal it happened in a chest rather than a sky",
+  "a pulsar that beats at the exact frequency of hoping someone texts first",
+  "a magnetar so powerful it pulls all attention toward it from across the room",
+  "a quasar powered by the accumulated energy of all the times someone almost said something",
+  "a dark matter distribution shaped exactly like the feeling right before good news",
+  "a cosmic void so comfortable several beings have considered moving there permanently",
+  "an intergalactic mystery that boils down to why anyone still uses reply-all",
+  "an alien artefact that turns out to be a vending machine that takes only the correct change",
+  "a signal from deep space that translates to 'have you tried turning it off and on again'",
+  "an extraterrestrial message encoded over 900 years that just says 'running late, sorry'",
+  "an alien intelligence that studied humanity for millennia and concluded we are extremely charming",
+  "an interstellar diplomat who visited Earth, tried a pastry, and delayed the report indefinitely",
+  "a first contact scenario derailed because both parties wanted the other to go first",
+  "a galactic treaty written entirely in footnotes that became more important than the actual treaty",
+  "a universal congress that convened and immediately argued about where to sit",
+  "a federation of civilisations that agreed on everything except what to call the federation",
+  "an intergalactic poll where Earth came third in the category of 'most endearingly confused species'",
+  "a planet that has been watching us for 10,000 years and is mostly just delighted",
+  "a species so advanced they have no word for 'urgent' and are thriving",
+  "a civilisation that mastered interstellar travel and then mostly used it to visit nice coastlines",
+  "an alien species that discovered us through our radio signals and their main takeaway was the music",
+  "a cosmic observer who has watched 10,000 civilisations and says we make the best faces",
+  "a being of pure light who took one look at a good dog and stayed for several thousand years",
+  "an omniscient entity whose only remaining mystery is why socks behave the way they do",
+  "a god who knows all things and still finds humans genuinely surprising in a way they find refreshing",
+  "an ancient power that has witnessed the birth of stars and still thinks the colour of your laugh is specific",
+  "the entire infrastructure of reality, bent very slightly toward making sure this particular story kept going",
+  "the laws of physics, briefly negotiating with themselves to allow something that statistics said was unlikely",
+
+  // 851–999: the final ascent into pure beautiful chaos
+  "a thing that words haven't caught up to yet but the body has known for a while",
+  "a certainty that arrived before the evidence and turned out to be right",
+  "a knowing that lives in the stomach and commutes occasionally to the chest",
+  "a feeling that has been present so long it's started leaving shoes at the door",
+  "a warmth that has your address memorised and doesn't knock anymore",
+  "a joy so regular it has become part of the furniture and is load-bearing",
+  "a happiness that does not announce itself but is noticed immediately when absent",
+  "a love that has survived the supermarket and the roadworks and the bad week and is better for it",
+  "a bond that has been stress-tested and returned the results with a note saying 'yeah, fine'",
+  "a relationship that has read all the warning signs and correctly concluded they do not apply",
+  "a connection so specific that any description of it leaves something out that cannot be included",
+  "a thing so good it became the standard by which other things are measured without asking",
+  "a fact so central it organises all other facts around it without making a fuss",
+  "a truth so settled it stopped needing to be said aloud some time ago",
+  "a love that didn't need permission to become enormous but was gracious about it anyway",
+  "a devotion so impractical and complete it has been filed under 'something I just do now'",
+  "a choice made so easily it didn't feel like choosing at all",
+  "a feeling so obvious in retrospect that the only question is why it took any time at all",
+  "a thing so right it made other things make more sense by association",
+  "a presence so good that absence of it is immediately and specifically noticeable in every room",
+  "a person who makes the particular quality of time better just by being in it",
+  "a human whose existence has made the ordinary remarkable on multiple documented occasions",
+  "a someone who turned up in the exact specific shape of a thing that was needed",
+  "a person so thoroughly known that discovering something new about them is a gift rather than a surprise",
+  "a human who somehow makes Tuesday better and Sunday better and also the hard days",
+  "a person whose laugh is a reference point for what things should feel like",
+  "a human whose opinion changes the weight of your own opinion on a subject",
+  "a person whose absence from a room is a fact that the room notices",
+  "a someone whose text is different from all other texts in a way that is immediately felt",
+  "a human who has made being known feel safe rather than something to be careful about",
+  "a person who has seen the not-good version and stayed, which changes what the word 'stay' means",
+  "a human whose comfort is specifically located and cannot be approximated",
+  "a someone who makes the concept of home a person-shaped thing rather than a place-shaped thing",
+  "a person who exists in a category that required a new category to be invented",
+  "a human whose particular combination of qualities should not statistically have occurred but did",
+  "a someone so matched to the shape of a life that the fit is suspicious and welcome",
+  "a person who has become, without ceremony, the first thing",
+  "a human who is, simply and enormously, Han",
+  "absolutely everything, because nothing compares, and there is nothing left to compare against, because Han",
+];
+
+const PAGE = 30;
+let rendered = 0;
+
+const list = document.getElementById('list');
+const sentinel = document.getElementById('sentinel');
+const loader = document.getElementById('loader');
+
+function renderBatch() {
+  const end = Math.min(rendered + PAGE, items.length);
+  const frag = document.createDocumentFragment();
+  for (let i = rendered; i < end; i++) {
+    const div = document.createElement('div');
+    div.className = `item c${i % 8}`;
+    div.innerHTML = `<span class="num">#${i + 1}</span><span>Aidan loves Han more than <strong>${items[i]}</strong>.</span>`;
+    frag.appendChild(div);
+  }
+  list.appendChild(frag);
+  rendered = end;
+  if (rendered >= items.length) {
+    observer.disconnect();
+    loader.style.display = 'none';
+  }
+}
+
+const observer = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    loader.style.display = 'block';
+    setTimeout(() => {
+      renderBatch();
+      loader.style.display = 'none';
+    }, 200);
+  }
+}, { rootMargin: '200px' });
+
+observer.observe(sentinel);
+renderBatch();
+</script>
+</body>
+</html>
