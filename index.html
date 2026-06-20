@@ -91,6 +91,33 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 32px rgba(99,102,241,0.5);
     }
+
+    .btn-alt {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.85rem 2rem;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 9999px;
+      letter-spacing: 0.01em;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 4px 24px rgba(16,185,129,0.35);
+    }
+
+    .btn-alt:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(16,185,129,0.5);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
   </style>
 </head>
 <body>
@@ -100,7 +127,10 @@
     <p class="tagline">
       I lied. This is my first rodeo...
     </p>
-    <a class="btn" href="loves.html">but I do know one thing...</a>
+    <div class="btn-group">
+      <a class="btn" href="loves.html">but I do know one thing...</a>
+      <a class="btn-alt" href="but-where.html">lets goooo</a>
+    </div>
   </div>
 </body>
 </html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>But Where?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #0a0a0a;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .bg {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, rgba(16,185,129,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 60%, rgba(6,182,212,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      padding: 1.2rem 1.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .back {
+      color: #10b981;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.01em;
+      transition: opacity 0.15s;
+    }
+    .back:hover { opacity: 0.7; }
+
+    header h1 {
+      font-size: clamp(1.1rem, 4vw, 1.5rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── layout ── */
+    .layout {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 61px);
+    }
+
+    @media (min-width: 768px) {
+      .layout { flex-direction: row; }
+    }
+
+    /* ── map panel ── */
+    .map-panel {
+      flex: 0 0 auto;
+      width: 100%;
+      height: 55vw;
+      min-height: 260px;
+      max-height: 420px;
+      position: relative;
+    }
+
+    @media (min-width: 768px) {
+      .map-panel {
+        width: 50%;
+        height: auto;
+        max-height: none;
+        min-height: calc(100vh - 61px);
+      }
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .coord-badge {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,10,10,0.82);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 9999px;
+      padding: 0.35rem 1rem;
+      font-size: 0.75rem;
+      color: #6ee7b7;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* ── results panel ── */
+    .results-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem 2rem;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .results-panel {
+        padding: 2rem 1.5rem 2rem;
+        overflow-y: auto;
+        max-height: calc(100vh - 61px);
+      }
+    }
+
+    /* ── status / loading ── */
+    .status {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(16,185,129,0.2);
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 0.75rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── place cards row ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    @media (min-width: 480px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .card-icon { font-size: 1.5rem; line-height: 1; }
+
+    .card-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+    }
+
+    .card-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      line-height: 1.3;
+    }
+
+    .card-dist {
+      font-size: 0.75rem;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .card-dir {
+      font-size: 0.7rem;
+      color: #64748b;
+    }
+
+    /* ── compass ── */
+    .compass-wrap {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .compass-title {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #475569;
+      margin-bottom: 0.75rem;
+    }
+
+    #compass-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .error-msg {
+      text-align: center;
+      color: #f87171;
+      font-size: 0.9rem;
+      max-width: 340px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <a class="back" href="index.html">← Back</a>
+    <h1>But Where?</h1>
+  </header>
+
+  <div class="layout">
+    <div class="map-panel">
+      <div id="map"></div>
+      <div class="coord-badge" id="coord-badge">Generating location…</div>
+    </div>
+
+    <div class="results-panel" id="results-panel">
+      <div class="status" id="status">
+        <div class="spinner"></div>
+        Finding your random location…
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── helpers ──────────────────────────────────────────────────────────────
+
+    // Haversine distance in nautical miles (1 NM = 1.852 km)
+    function distanceNM(lat1, lon1, lat2, lon2) {
+      const R = 6371; // km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+      const distKm = 2 * R * Math.asin(Math.sqrt(a));
+      return distKm / 1.852;
+    }
+
+    // Bearing in degrees (0 = N, 90 = E, 180 = S, 270 = W)
+    function bearing(lat1, lon1, lat2, lon2) {
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const y = Math.sin(dLon) * Math.cos(φ2);
+      const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(dLon);
+      return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    }
+
+    function bearingLabel(deg) {
+      const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+      return dirs[Math.round(deg / 22.5) % 16];
+    }
+
+    // Random point weighted toward populated land (bounding boxes of major regions)
+    function randomPopulatedCoord() {
+      const regions = [
+        { name: 'Europe',         latMin: 35,  latMax: 60,  lonMin: -10, lonMax: 30  },
+        { name: 'Eastern US',     latMin: 25,  latMax: 47,  lonMin: -90, lonMax: -65 },
+        { name: 'Western US',     latMin: 32,  latMax: 49,  lonMin:-125, lonMax: -95 },
+        { name: 'East Asia',      latMin: 20,  latMax: 45,  lonMin: 110, lonMax: 145 },
+        { name: 'South Asia',     latMin: 8,   latMax: 35,  lonMin: 65,  lonMax: 95  },
+        { name: 'SE Asia',        latMin: -10, latMax: 22,  lonMin: 95,  lonMax: 130 },
+        { name: 'E Australia',    latMin: -40, latMax: -20, lonMin: 138, lonMax: 155 },
+        { name: 'New Zealand',    latMin: -47, latMax: -34, lonMin: 166, lonMax: 178 },
+        { name: 'Brazil',         latMin: -30, latMax: -5,  lonMin: -55, lonMax: -35 },
+        { name: 'W Africa',       latMin: 4,   latMax: 25,  lonMin: -18, lonMax: 15  },
+        { name: 'UK',             latMin: 50,  latMax: 59,  lonMin: -6,  lonMax: 2   },
+      ];
+      const r = regions[Math.floor(Math.random() * regions.length)];
+      return {
+        lat: r.latMin + Math.random() * (r.latMax - r.latMin),
+        lng: r.lonMin + Math.random() * (r.lonMax - r.lonMin),
+      };
+    }
+
+    // ── compass SVG builder ───────────────────────────────────────────────────
+
+    function buildCompass(origin, places) {
+      const SIZE = 380;
+      const CX = SIZE / 2;
+      const CY = SIZE / 2;
+      const R_OUTER = 160;
+      const R_LABEL = 178;
+      const R_DOT = 10;
+      const PLACE_R = 108; // fixed visual radius for place dots
+
+      const colors = ['#10b981', '#06b6d4', '#f472b6', '#a78bfa'];
+      const icons  = ['🚉', '🍔', '🚓', '📱'];
+
+      let svg = `<svg id="compass-svg" viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg">`;
+
+      // background circle
+      svg += `<circle cx="${CX}" cy="${CY}" r="${R_OUTER}" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
+      svg += `<circle cx="${CX}" cy="${CY}" r="${R_OUTER * 0.65}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4 4"/>`;
+      svg += `<circle cx="${CX}" cy="${CY}" r="${R_OUTER * 0.3}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4 4"/>`;
+
+      // cardinal ticks & labels
+      const cardinals = [
+        { label: 'N', deg: 0 },
+        { label: 'E', deg: 90 },
+        { label: 'S', deg: 180 },
+        { label: 'W', deg: 270 },
+      ];
+      const intercardinals = [45, 135, 225, 315];
+
+      cardinals.forEach(({ label, deg }) => {
+        const rad = (deg - 90) * Math.PI / 180;
+        const x1 = CX + (R_OUTER - 12) * Math.cos(rad);
+        const y1 = CY + (R_OUTER - 12) * Math.sin(rad);
+        const x2 = CX + R_OUTER * Math.cos(rad);
+        const y2 = CY + R_OUTER * Math.sin(rad);
+        const lx = CX + R_LABEL * Math.cos(rad);
+        const ly = CY + R_LABEL * Math.sin(rad);
+        const isNorth = label === 'N';
+        svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${isNorth ? '#10b981' : 'rgba(255,255,255,0.3)'}" stroke-width="${isNorth ? 2 : 1}"/>`;
+        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="${isNorth ? '#10b981' : '#94a3b8'}" font-family="system-ui,sans-serif">${label}</text>`;
+      });
+
+      intercardinals.forEach(deg => {
+        const rad = (deg - 90) * Math.PI / 180;
+        const x1 = CX + (R_OUTER - 7) * Math.cos(rad);
+        const y1 = CY + (R_OUTER - 7) * Math.sin(rad);
+        const x2 = CX + R_OUTER * Math.cos(rad);
+        const y2 = CY + R_OUTER * Math.sin(rad);
+        svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`;
+      });
+
+      // centre dot
+      svg += `<circle cx="${CX}" cy="${CY}" r="5" fill="#10b981"/>`;
+      svg += `<circle cx="${CX}" cy="${CY}" r="10" fill="none" stroke="#10b981" stroke-width="1" opacity="0.5"/>`;
+
+      // place dots at their bearing, fixed radius
+      places.forEach((p, i) => {
+        if (!p) return;
+        const rad = (p.bearing - 90) * Math.PI / 180;
+        const px = CX + PLACE_R * Math.cos(rad);
+        const py = CY + PLACE_R * Math.sin(rad);
+
+        // line from centre
+        svg += `<line x1="${CX}" y1="${CY}" x2="${px}" y2="${py}" stroke="${colors[i]}" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>`;
+
+        // dot
+        svg += `<circle cx="${px}" cy="${py}" r="${R_DOT}" fill="${colors[i]}" opacity="0.9"/>`;
+
+        // icon (emoji in SVG needs foreignObject for reliable rendering, use text fallback)
+        svg += `<text x="${px}" y="${py}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-family="system-ui,sans-serif">${icons[i]}</text>`;
+
+        // label — smart positioning to avoid clipping
+        const labelOffset = 22;
+        const lx = CX + (PLACE_R + labelOffset) * Math.cos(rad);
+        const ly = CY + (PLACE_R + labelOffset) * Math.sin(rad);
+
+        // keep label inside SVG
+        const clampedLx = Math.max(30, Math.min(SIZE - 30, lx));
+        const clampedLy = Math.max(14, Math.min(SIZE - 14, ly));
+
+        const nm = p.distanceNM.toFixed(1);
+        svg += `<text x="${clampedLx}" y="${clampedLy - 5}" text-anchor="middle" font-size="8" font-weight="700" fill="${colors[i]}" font-family="system-ui,sans-serif">${nm} NM</text>`;
+        svg += `<text x="${clampedLx}" y="${clampedLy + 5}" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="system-ui,sans-serif">${bearingLabel(p.bearing)}</text>`;
+      });
+
+      svg += `</svg>`;
+      return svg;
+    }
+
+    // ── place card builder ────────────────────────────────────────────────────
+
+    function buildCards(places) {
+      const defs = [
+        { label: 'Transport Hub', icon: '🚉' },
+        { label: 'Fast Food',     icon: '🍔' },
+        { label: 'Police Station',icon: '🚓' },
+        { label: 'Vodafone Store',icon: '📱' },
+      ];
+
+      return places.map((p, i) => {
+        if (!p) return `<div class="card"><div class="card-icon">${defs[i].icon}</div><div class="card-label">${defs[i].label}</div><div class="card-name" style="color:#ef4444">Not found nearby</div></div>`;
+        return `
+          <div class="card">
+            <div class="card-icon">${defs[i].icon}</div>
+            <div class="card-label">${defs[i].label}</div>
+            <div class="card-name">${p.name}</div>
+            <div class="card-dist">${p.distanceNM.toFixed(2)} NM</div>
+            <div class="card-dir">${bearingLabel(p.bearing)} · ${p.bearing.toFixed(0)}°</div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── main flow ─────────────────────────────────────────────────────────────
+
+    let map, originMarker;
+    const origin = randomPopulatedCoord();
+
+    function setStatus(html) {
+      document.getElementById('status').innerHTML = html;
+    }
+
+    function renderResults(places) {
+      const panel = document.getElementById('results-panel');
+      panel.innerHTML = `
+        <div class="cards">${buildCards(places)}</div>
+        <div class="compass-wrap">
+          <div class="compass-title">Relative Compass</div>
+          ${buildCompass(origin, places)}
+        </div>`;
+    }
+
+    // Nearby search wrapper — returns best result or null
+    function nearbySearch(service, lat, lng, type, keyword, radius) {
+      return new Promise(resolve => {
+        const req = {
+          location: new google.maps.LatLng(lat, lng),
+          rankBy: google.maps.places.RankBy.DISTANCE,
+        };
+        if (type)    req.type = type;
+        if (keyword) req.keyword = keyword;
+
+        service.nearbySearch(req, (results, status) => {
+          if (status !== google.maps.places.PlacesServiceStatus.OK || !results.length) {
+            resolve(null);
+            return;
+          }
+          const r = results[0];
+          const rlat = r.geometry.location.lat();
+          const rlng = r.geometry.location.lng();
+          resolve({
+            name: r.name,
+            distanceNM: distanceNM(lat, lng, rlat, rlng),
+            bearing:    bearing(lat, lng, rlat, rlng),
+          });
+        });
+      });
+    }
+
+    async function fetchPlaces() {
+      setStatus('<div class="spinner"></div>Searching nearby places…');
+
+      const dummyDiv = document.createElement('div');
+      const service  = new google.maps.places.PlacesService(dummyDiv);
+      const { lat, lng } = origin;
+
+      const [transport, fastfood, police, vodafone] = await Promise.all([
+        nearbySearch(service, lat, lng, 'transit_station', null, 50000),
+        nearbySearch(service, lat, lng, 'restaurant',      'fast food', 50000),
+        nearbySearch(service, lat, lng, 'police',          null, 50000),
+        nearbySearch(service, lat, lng, null,              'Vodafone store', 150000),
+      ]);
+
+      const places = [transport, fastfood, police, vodafone];
+      renderResults(places);
+    }
+
+    window.initMap = function () {
+      const { lat, lng } = origin;
+
+      document.getElementById('coord-badge').textContent =
+        `${lat >= 0 ? lat.toFixed(4) + '°N' : Math.abs(lat).toFixed(4) + '°S'}, ${lng >= 0 ? lng.toFixed(4) + '°E' : Math.abs(lng).toFixed(4) + '°W'}`;
+
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat, lng },
+        zoom: 12,
+        mapTypeId: 'roadmap',
+        styles: [
+          { elementType: 'geometry',           stylers: [{ color: '#1a1a2e' }] },
+          { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
+          { elementType: 'labels.text.fill',   stylers: [{ color: '#94a3b8' }] },
+          { featureType: 'road',               elementType: 'geometry',           stylers: [{ color: '#2d3748' }] },
+          { featureType: 'road',               elementType: 'geometry.stroke',    stylers: [{ color: '#1a202c' }] },
+          { featureType: 'water',              elementType: 'geometry',           stylers: [{ color: '#0d1117' }] },
+          { featureType: 'poi',                elementType: 'geometry',           stylers: [{ color: '#2d3748' }] },
+          { featureType: 'administrative',     elementType: 'geometry.stroke',    stylers: [{ color: '#374151' }] },
+        ],
+      });
+
+      originMarker = new google.maps.Marker({
+        position: { lat, lng },
+        map,
+        title: 'Your random location',
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: '#10b981',
+          fillOpacity: 1,
+          strokeColor: '#fff',
+          strokeWeight: 2,
+        },
+      });
+
+      fetchPlaces();
+    };
+  </script>
+
+  <!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual key -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap"
+    async defer
+    onerror="document.getElementById('results-panel').innerHTML='<p class=\'error-msg\'>⚠️ Google Maps failed to load. Make sure a valid API key is set in but-where.html.</p>'; document.getElementById('coord-badge').textContent='API key missing';"
+  ></script>
+</body>
+</html>
