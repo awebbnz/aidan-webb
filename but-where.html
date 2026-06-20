@@ -32,6 +32,7 @@
       align-items: center;
       gap: 1rem;
       border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-wrap: wrap;
     }
 
     .back {
@@ -51,6 +52,28 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      flex: 1;
+    }
+
+    .btn-again {
+      display: inline-block;
+      padding: 0.55rem 1.25rem;
+      background: linear-gradient(135deg, #f472b6, #a78bfa);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 4px 16px rgba(244,114,182,0.35);
+      white-space: nowrap;
+    }
+    .btn-again:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(244,114,182,0.5);
     }
 
     /* ── layout ── */
@@ -230,6 +253,7 @@
   <header>
     <a class="back" href="index.html">← Back</a>
     <h1>But Where?</h1>
+    <button class="btn-again" onclick="location.reload()">DO IT AGAIN!</button>
   </header>
 
   <div class="layout">
@@ -278,20 +302,17 @@
       return dirs[Math.round(deg / 22.5) % 16];
     }
 
-    // Random point weighted toward populated land (bounding boxes of major regions)
+    // Random point within UK land sub-regions
     function randomPopulatedCoord() {
       const regions = [
-        { name: 'Europe',         latMin: 35,  latMax: 60,  lonMin: -10, lonMax: 30  },
-        { name: 'Eastern US',     latMin: 25,  latMax: 47,  lonMin: -90, lonMax: -65 },
-        { name: 'Western US',     latMin: 32,  latMax: 49,  lonMin:-125, lonMax: -95 },
-        { name: 'East Asia',      latMin: 20,  latMax: 45,  lonMin: 110, lonMax: 145 },
-        { name: 'South Asia',     latMin: 8,   latMax: 35,  lonMin: 65,  lonMax: 95  },
-        { name: 'SE Asia',        latMin: -10, latMax: 22,  lonMin: 95,  lonMax: 130 },
-        { name: 'E Australia',    latMin: -40, latMax: -20, lonMin: 138, lonMax: 155 },
-        { name: 'New Zealand',    latMin: -47, latMax: -34, lonMin: 166, lonMax: 178 },
-        { name: 'Brazil',         latMin: -30, latMax: -5,  lonMin: -55, lonMax: -35 },
-        { name: 'W Africa',       latMin: 4,   latMax: 25,  lonMin: -18, lonMax: 15  },
-        { name: 'UK',             latMin: 50,  latMax: 59,  lonMin: -6,  lonMax: 2   },
+        { name: 'South England',    latMin: 50.0, latMax: 52.0, lonMin: -5.5, lonMax:  1.8 },
+        { name: 'Midlands',         latMin: 52.0, latMax: 53.5, lonMin: -3.2, lonMax:  0.5 },
+        { name: 'North England',    latMin: 53.5, latMax: 55.1, lonMin: -3.5, lonMax:  0.1 },
+        { name: 'Wales',            latMin: 51.3, latMax: 53.5, lonMin: -5.3, lonMax: -2.6 },
+        { name: 'Southern Scotland',latMin: 55.0, latMax: 56.5, lonMin: -5.5, lonMax: -1.5 },
+        { name: 'Central Scotland', latMin: 56.5, latMax: 57.5, lonMin: -5.5, lonMax: -2.5 },
+        { name: 'Northern Scotland',latMin: 57.5, latMax: 58.7, lonMin: -5.0, lonMax: -3.0 },
+        { name: 'Northern Ireland', latMin: 54.0, latMax: 55.2, lonMin: -8.2, lonMax: -5.4 },
       ];
       const r = regions[Math.floor(Math.random() * regions.length)];
       return {
@@ -517,7 +538,7 @@
     };
   </script>
 
-  <!-- Replace AIzaSyDGZrmUL14Ene97mb8VV-kse0m4IkZBfv4 with your actual key -->
+  <!-- Google Maps JS API with Places library -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGZrmUL14Ene97mb8VV-kse0m4IkZBfv4&libraries=places&callback=initMap"
     async defer
