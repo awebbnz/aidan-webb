@@ -224,20 +224,23 @@ body{background:var(--canvas);color:var(--ink);font-family:var(--body);font-weig
 .seg__btn:hover{background:var(--ink-soft);color:var(--ink)}
 .seg__btn.is-active{background:var(--coral);color:#fff}
 
-.adopt__legend{display:flex;flex-direction:column;gap:.5rem;margin-top:.4rem;padding-top:1rem;border-top:1px solid var(--mist)}
+.adopt__legend{display:flex;flex-wrap:wrap;gap:.5rem 3rem;margin-top:.4rem;padding-top:1rem;border-top:1px solid var(--mist);grid-column:1 / -1}
+.leg{flex:0 0 calc(50% - 1.5rem)}
 .leg{display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--slate)}
 .leg__dash{width:20px;height:0;border-top:3px dashed var(--slate);display:inline-block;flex:none}
 .leg__solid{width:20px;height:0;border-top:4px solid var(--coral);display:inline-block;flex:none}
 .leg__gap{width:20px;height:12px;background:var(--coral-soft);border:1px solid var(--coral);display:inline-block;flex:none}
 .leg__dot{width:20px;height:0;border-top:2.5px dotted var(--token);display:inline-block;flex:none}
 .adopt__read{font-family:var(--display);font-weight:700;font-size:1rem;line-height:1.3;color:var(--ink);
-  letter-spacing:-.01em;padding:1rem;background:var(--ink-soft);border-radius:4px;border-left:3px solid var(--coral)}
+  letter-spacing:-.01em;padding:1rem;background:var(--ink-soft);border-radius:4px;border-left:3px solid var(--coral);
+  grid-column:1 / -1}
 
 .adopt__outro{margin-top:8vh;font-family:var(--display);font-weight:700;font-size:clamp(1.4rem,3vw,2.1rem);
   letter-spacing:-.02em;line-height:1.08;max-width:34ch;color:var(--ink)}
 
 @media(max-width:900px){
   .adopt__panel{grid-template-columns:1fr;padding:1.6rem;gap:2rem}
+  .leg{flex:0 0 100%}
 }
 
 /* ---------- SECTION 5 : HONEST OBJECTIONS ---------- */
@@ -571,15 +574,14 @@ body{background:var(--canvas);color:var(--ink);font-family:var(--body);font-weig
           </div>
         </div>
 
-        <div class="adopt__legend">
-          <span class="leg"><i class="leg__dot"></i>Token spend — cost of active usage</span>
-          <span class="leg"><i class="leg__dash"></i>Activity — tools rolled out and used</span>
-          <span class="leg"><i class="leg__solid"></i>Realised value — measured business outcome</span>
-          <span class="leg"><i class="leg__gap"></i>Unproven spend — the gap between them</span>
-        </div>
-
-        <p class="adopt__read" id="adoptRead">Steady adoption with structured enablement keeps the gap modest.</p>
       </div>
+      <div class="adopt__legend">
+        <span class="leg"><i class="leg__dot"></i>Token spend — cost of active usage</span>
+        <span class="leg"><i class="leg__dash"></i>Activity — tools rolled out and used</span>
+        <span class="leg"><i class="leg__solid"></i>Realised value — measured business outcome</span>
+        <span class="leg"><i class="leg__gap"></i>Unproven spend — the gap between them</span>
+      </div>
+      <p class="adopt__read" id="adoptRead">Steady adoption with structured enablement keeps the gap modest.</p>
     </div>
 
     <p class="adopt__outro">Education and communication are a key variable in the value equation, and an enabler of organisational success.</p>
