@@ -44,6 +44,7 @@ body{background:var(--canvas);color:var(--ink);font-family:var(--body);font-weig
 .hero__topline{position:absolute;top:0;left:0;width:100%;z-index:2;
   display:flex;justify-content:space-between;align-items:flex-start;
   padding:7vh var(--gutter) 0;gap:2rem;flex-wrap:wrap;pointer-events:none}
+.hero__topline-right{margin-left:auto;text-align:right}
 .hero__eyebrow{white-space:nowrap;margin-bottom:.5rem}
 .hero__credit{font-family:var(--mono);font-size:.72rem;color:var(--slate);letter-spacing:.04em}
 .hero__inner{position:relative;z-index:2;max-width:min(24ch,60vw)}
@@ -374,9 +375,9 @@ body{background:var(--canvas);color:var(--ink);font-family:var(--body);font-weig
     <path id="heroLine" d="" fill="none" stroke="#FF4B1F" stroke-width="5" stroke-linecap="round"/>
   </svg>
   <div class="hero__topline">
-    <div class="hero__topline-left">
+    <div class="hero__topline-right">
       <p class="eyebrow hero__eyebrow">AI value · an interactive exploration</p>
-      <p class="hero__credit">Built by Aidan Webb w/ Claude</p>
+      <p class="hero__credit">Built by Aidan Webb w/ Claude Code</p>
     </div>
   </div>
   <div class="hero__inner">
